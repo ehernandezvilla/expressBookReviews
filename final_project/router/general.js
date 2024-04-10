@@ -24,7 +24,7 @@ public_users.get('/',function (req, res) {
   res.status(200).send(JSON.stringify(books, null, 4));
 });
 
-// Get book details based on ISBN
+// Get book details based on ISBN (International Standard Book Number)
 public_users.get('/isbn/:isbn',function (req, res) {
   const isbn = req.params.isbn;
   const book = Object.values(books).find(book => book.isbn === isbn);
@@ -34,7 +34,7 @@ public_users.get('/isbn/:isbn',function (req, res) {
   } else {
     return res.status(404).json({message: "Book not found"});
   }
-  
+
  });
   
 // Get book details based on author
