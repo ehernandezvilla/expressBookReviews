@@ -58,6 +58,22 @@ regd_users.post("/login", (req,res) => {
   }
 });
 
+// Sign-out endpoint
+regd_users.post('/logout', (req, res) => {
+  // Destroy the session
+  req.session.destroy(err => {
+      if (err) {
+          // Handle the error case
+          return res.status(500).json({ message: "Could not log out, please try again" });
+      } else {
+          // Optionally, clear the cookie on the client side
+          res.clearCookie('connect.sid'); // This assumes you're using the default session cookie name
+          // Respond to the request indicating the user was logged out
+          return res.status(200).json({ message: "Logged out successfully" });
+      }
+  });
+});
+
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   const { isbn } = req.params; // Extract isbn from URL parameters
