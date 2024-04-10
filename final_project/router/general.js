@@ -51,14 +51,26 @@ public_users.get('/author/:author',function (req, res) {
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const titleQuery = req.params.title.toLowerCase();
+  const booksByTitle = Object.values(books).filter(book => book.title.toLowerCase().includes(titleQuery));
+
+  if (booksByTitle.length > 0) {
+    return res.status(200).json(booksByTitle);
+  } else {
+    return res.status(404).json({ message: "No books found for the given title" });
+  }
 });
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const isbnQuery = req.params.isbn;
+  const reviewsByIsbn = Object.values(books).find(book => book.isbn === isbnQuery);
+
+  if (reviewsByIsbn) {
+    return res.status(200).json(reviewsByIsbn.reviews);
+  } else {
+    return res.status(404).json({ message: "No reviews found for the given book" });
+  }
 });
 
 module.exports.general = public_users;
