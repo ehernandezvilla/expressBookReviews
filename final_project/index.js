@@ -10,11 +10,12 @@ app.use(express.json());
 
 app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUninitialized: true}))
 
-app.use("/customer/auth/*", function auth(req,res,next){
-    if(req.session.user){
+app.use("/customer/auth/*", function auth(req, res, next) {
+    console.log(req.session); // Debug: Inspect the session
+    if (req.session.user) {
         next();
-    }else{
-        res.status(401).json({message:"Unauthorized access"});
+    } else {
+        res.status(401).json({ message: "Unauthorized access" });
     }
 });
  
