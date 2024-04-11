@@ -74,7 +74,7 @@ regd_users.post('/logout', (req, res) => {
   });
 });
 
-// Add a book review
+// Add or modify a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   const { isbn } = req.params; // Extract isbn from URL parameters
   const { rating } = req.body; // Extract rating from request body
@@ -89,11 +89,38 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
   if (bookKey) {
     // If the book is found, add the new review
-    books[bookKey].reviews.push({rating});
+    books[bookKey].reviews.push({
+      username: req.session.user.username,
+      rating: req.body.rating,
+      review: req.body.review
+    });
     return res.status(200).json({message: "Review successfully added", book: books[bookKey]});
   } else {
     // If no book matches the provided ISBN
     return res.status(404).json({message: "Book not found"});
+  }
+});
+
+// Delete a book review
+regd_users.delete('/customer/auth/review/:isbn/:reviewIndex', (req, res) => {
+  const { isbn, reviewIndex } = req.params;
+  const username = req.session.user.username; // Assuming the username is stored in the session
+
+  // Find the book by its ISBN
+  const book = Object.values(books).find(book => book.isbn === isbn);
+
+  if (!book) {
+    return res.status(404).json({ message: "Book not found" });
+  }
+
+  // Check if the review at the given index exists and was added by the current user
+  const review = book.reviews[reviewIndex];
+  if (review && review.username === username) {
+    // Delete the review
+    book.reviews.splice(reviewIndex, 1);
+    res.status(200).json({ message: "Review deleted successfully" });
+  } else {
+    res.status(403).json({ message: "Cannot delete a review that was not added by the user" });
   }
 });
 
