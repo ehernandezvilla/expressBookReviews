@@ -100,10 +100,8 @@ public_users.get('/axios_books/isbn/:isbn', async (req, res) => {
 // Get book details based on author using axios async await promises - Task 12
 public_users.get('axios_books/author/:author', async (req, res) => {
   const author = req.params.author.toLowerCase();
-  console.log(author)
   try {
     const response = await axios.get(`http://localhost:5000/author/${author}`);
-    console.log(response.data)
     return res.status(200).json(response.data);
   } catch (error) {
     return res.status(500).json({ message: "Error fetching data" });
