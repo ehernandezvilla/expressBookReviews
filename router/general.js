@@ -3,6 +3,7 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require('axios');
 
 
 public_users.post("/register", (req,res) => {
@@ -72,5 +73,53 @@ public_users.get('/review/:isbn',function (req, res) {
     return res.status(404).json({ message: "No reviews found for the given book" });
   }
 });
+
+// Axios task 10 to 13
+
+// Get all books using axios async await promises - Taks 10 
+public_users.get('/axios_books', async (req, res) => {
+  try {
+    const response = await axios.get('http://localhost:5000')
+    return res.status(200).json(response.data);
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching data" });
+  }
+});
+
+// Get book details based on ISBN using axios async await promises - Task 11 
+public_users.get('/axios_books/isbn/:isbn', async (req, res) => {
+  const isbn = req.params.isbn;
+  try {
+    const response = await axios.get(`http://localhost:5000/isbn/${isbn}`);
+    return res.status(200).json(response.data);
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching data" });
+  }
+});
+
+// Get book details based on author using axios async await promises - Task 12
+public_users.get('axios_books/author/:author', async (req, res) => {
+  const author = req.params.author.toLowerCase();
+  console.log(author)
+  try {
+    const response = await axios.get(`http://localhost:5000/author/${author}`);
+    console.log(response.data)
+    return res.status(200).json(response.data);
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching data" });
+  }
+});
+
+// Get book details based on title using axios async await promises - Task 13 
+public_users.get('/axios_books/title/:title', async (req, res) => {
+  const title = req.params.title;
+  try {
+    const response = await axios.get(`http://localhost:5000/title/${title}`);
+    return res.status(200).json(response.data);
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching data" });
+  }
+});
+
 
 module.exports.general = public_users;

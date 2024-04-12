@@ -51,7 +51,7 @@ regd_users.post("/login", (req,res) => {
         return res.status(500).json({message: "Failed to save session."});
       }
       // Session save was successful
-      return res.status(200).send("User successfully logged in");
+      return res.status(200).send("User successfully logged in you session id is: " + req.session.id + " and your token is: " + accessToken);
     });
   } else {
     return res.status(401).json({message: "Invalid login. Check username and password"});
@@ -91,8 +91,8 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     // If the book is found, add the new review
     books[bookKey].reviews.push({
       username: req.session.user.username,
-      rating: req.body.rating,
-      review: req.body.review
+      rating: req.body.rating, 
+      review: req.body.review || null
     });
     return res.status(200).json({message: "Review successfully added", book: books[bookKey]});
   } else {
@@ -102,8 +102,8 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 });
 
 // Delete a book review
-regd_users.delete('/customer/auth/review/:isbn/:reviewIndex', (req, res) => {
-  const { isbn, reviewIndex } = req.params;
+regd_users.delete('/auth/review/:isbn', (req, res) => {
+  const { isbn } = req.params;
   const username = req.session.user.username; // Assuming the username is stored in the session
 
   // Find the book by its ISBN
@@ -113,16 +113,19 @@ regd_users.delete('/customer/auth/review/:isbn/:reviewIndex', (req, res) => {
     return res.status(404).json({ message: "Book not found" });
   }
 
-  // Check if the review at the given index exists and was added by the current user
-  const review = book.reviews[reviewIndex];
-  if (review && review.username === username) {
-    // Delete the review
-    book.reviews.splice(reviewIndex, 1);
-    res.status(200).json({ message: "Review deleted successfully" });
-  } else {
-    res.status(403).json({ message: "Cannot delete a review that was not added by the user" });
+  // Filter out the review added by the current user
+  const originalReviewCount = book.reviews.length;
+  book.reviews = book.reviews.filter(review => review.username !== username);
+
+  if (book.reviews.length === originalReviewCount) {
+    // No reviews were removed, indicating no reviews by the user were found
+    return res.status(404).json({ message: "No review found for the user" });
   }
+
+  // Successfully removed the review(s)
+  res.status(200).json({ message: "Review deleted successfully" });
 });
+
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
